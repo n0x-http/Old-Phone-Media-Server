@@ -4,9 +4,9 @@ from werkzeug.utils import secure_filename
 import os
 
 app = Flask(__name__)
-app.secret_key = "chave-secreta-bem-simples" 
+app.secret_key = "chave-secreta-bem-simples"
 
-MOVIES_FOLDER = Path("movies")
+MOVIES_FOLDER = Path.home() / "movies"
 MOVIES_FOLDER.mkdir(exist_ok=True)
 
 ALLOWED_EXTENSIONS = {"mp4"}
@@ -120,7 +120,7 @@ def delete_movie(filename):
 
     file_path = MOVIES_FOLDER / filename
     if file_path.exists():
-        file_path.unlink()  
+        file_path.unlink()
         flash(f"Filme '{filename}' removido!", "success")
     else:
         flash("Filme não encontrado.", "error")
@@ -129,4 +129,5 @@ def delete_movie(filename):
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=False, threaded=True)
+    from waitress import serve
+    serve(app, host="0.0.0.0", port=5000, threads=4)
