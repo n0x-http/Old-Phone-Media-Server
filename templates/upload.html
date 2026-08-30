@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adicionar Filme</title>
+    <style>
+        body {
+            font-family: system-ui, sans-serif;
+            background: #0a0a0a;
+            color: #eee;
+            max-width: 500px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+        h1 {
+            margin-bottom: 25px;
+            font-size: 1.6rem;
+        }
+        .form-group {
+            margin-bottom: 18px;
+        }
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 14px;
+            color: #aaa;
+        }
+        input[type="text"],
+        input[type="file"] {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #333;
+            background: #1a1a1a;
+            color: #eee;
+            font-size: 15px;
+        }
+        input[type="file"] {
+            padding: 10px;
+        }
+        button {
+            width: 100%;
+            padding: 13px;
+            background: #1e88e5;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover {
+            background: #1976d2;
+        }
+        button:disabled {
+            background: #444;
+            cursor: not-allowed;
+        }
+        .back {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #4fc3f7;
+            text-decoration: none;
+        }
+        .flash {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        .flash.success {
+            background: #1b5e20;
+        }
+        .flash.error {
+            background: #b71c1c;
+        }
+        .hint {
+            font-size: 13px;
+            color: #777;
+            margin-top: 6px;
+        }
+
+        /* progresso */
+        #progress-wrap {
+            display: none;
+            margin-top: 16px;
+        }
+        #progress-bar-bg {
+            width: 100%;
+            height: 10px;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        #progress-bar-fill {
+            height: 100%;
+            width: 0%;
+            background: #1e88e5;
+            transition: width 0.15s ease;
+        }
+        #progress-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            color: #aaa;
+            margin-top: 6px;
+        }
+    </style>
+</head>
+<body>
+    <a href="/" class="back">← Voltar para a lista</a>
+
+    <h1>Adicionar Filme</h1>
+
+    <div id="flash-area">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="flash {{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    </div>
+
+    <form id="upload-form" method="POST" enctype="multipart/form-data">
+        <div class="form-group">
+            <label>Arquivo .mp4</label>
+            <input type="file" id="file-input" name="file" accept=".mp4" required>
+        </div>
+
+        <div class="form-group">
+            <label>Nome do filme (opcional)</label>
+            <input type="text" name="name" placeholder="Ex: Homem-Aranha 2002">
+            <div class="hint">Se deixar em branco, usa o nome original do arquivo</div>
+        </div>
+
+        <button type="submit" id="submit-btn">Enviar Filme</button>
+
+        <div id="progress-wrap">
+            <div id="progress-bar-bg">
+                <div id="progress-bar-fill"></div>
+            </div>
+            <div id="progress-info">
+                <span id="progress-percent">0%</span>
+                <span id="progress-speed">0 KB/s</span>
+            </div>
+        </div>
+    </form>
+
+    <script>
+        const form = document.getElementById("upload-form");
+        const submitBtn = document.getElementById("submit-btn");
+        const progressWrap = document.getElementById("progress-wrap");
+        const progressFill = document.getElementById("progress-bar-fill");
+        const progressPercent = document.getElementById("progress-percent");
+        const progressSpeed = document.getElementById("progress-speed");
+        const flashArea = document.getElementById("flash-area");
+
+        function formatSpeed(bytesPerSec) {
+            if (bytesPerSec >= 1024 * 1024) {
+                return (bytesPerSec / (1024 * 1024)).toFixed(1) + " MB/s";
+            }
+            return (bytesPerSec / 1024).toFixed(0) + " KB/s";
+        }
+
+        function showFlash(message, category) {
+            flashArea.innerHTML = `<div class="flash ${category}">${message}</div>`;
+        }
+
+        form.addEventListener("submit", function (e) {
+            e.preventDefault();
+
+            const fileInput = document.getElementById("file-input");
+            if (!fileInput.files.length) return;
+
+            const formData = new FormData(form);
+            const xhr = new XMLHttpRequest();
+
+            let startTime = Date.now();
+            let lastLoaded = 0;
+            let lastTime = startTime;
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = "Enviando...";
+            progressWrap.style.display = "block";
+
+            xhr.upload.addEventListener("progress", function (event) {
+                if (!event.lengthComputable) return;
+
+                const now = Date.now();
+                const percent = (event.loaded / event.total) * 100;
+
+                progressFill.style.width = percent + "%";
+                progressPercent.textContent = percent.toFixed(1) + "%";
+
+                const timeDiff = (now - lastTime) / 1000;
+                if (timeDiff > 0.2) {
+                    const loadedDiff = event.loaded - lastLoaded;
+                    const speed = loadedDiff / timeDiff;
+                    progressSpeed.textContent = formatSpeed(speed);
+                    lastLoaded = event.loaded;
+                    lastTime = now;
+                }
+            });
+
+            xhr.addEventListener("load", function () {
+                submitBtn.disabled = false;
+                submitBtn.textContent = "Enviar Filme";
+                progressWrap.style.display = "none";
+
+                let data;
+                try {
+                    data = JSON.parse(xhr.responseText);
+                } catch (err) {
+                    showFlash("Erro inesperado no upload.", "error");
+                    return;
+                }
+
+                if (data.success) {
+                    window.location.href = "/";
+                } else {
+                    showFlash(data.message, "error");
+                }
+            });
+
+            xhr.addEventListener("error", function () {
+                submitBtn.disabled = false;
+                submitBtn.textContent = "Enviar Filme";
+                progressWrap.style.display = "none";
+                showFlash("Falha na conexão durante o upload.", "error");
+            });
+
+            xhr.open("POST", "/upload");
+            xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+            xhr.send(formData);
+        });
+    </script>
+</body>
+</html>

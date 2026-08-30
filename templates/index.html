@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meus Filmes</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #0a0a0a;
+            color: #eee;
+        }
+
+        h1 {
+            margin-bottom: 8px;
+            font-size: 1.8rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .add-btn {
+            display: inline-block;
+            color: #4fc3f7;
+            text-decoration: none;
+            font-size: 14px;
+            margin-bottom: 18px;
+        }
+
+        .add-btn:hover {
+            text-decoration: underline;
+        }
+
+        .search {
+            width: 100%;
+            padding: 12px 16px;
+            font-size: 16px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            border: 1px solid #333;
+            background: #1a1a1a;
+            color: #eee;
+            outline: none;
+        }
+
+        .search:focus {
+            border-color: #1e88e5;
+        }
+
+        .movie {
+            background: #1a1a1a;
+            padding: 14px 16px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            transition: 0.15s;
+        }
+
+        .movie:hover {
+            background: #222;
+        }
+
+        .movie a {
+            color: #4fc3f7;
+            text-decoration: none;
+            font-weight: 500;
+            flex: 1;
+            word-break: break-word;
+        }
+
+        .movie a:hover {
+            text-decoration: underline;
+        }
+
+        .movie-actions {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .size {
+            color: #888;
+            font-size: 13px;
+            white-space: nowrap;
+        }
+
+        .delete-btn {
+            background: transparent;
+            border: none;
+            color: #ff5252;
+            font-size: 16px;
+            cursor: pointer;
+            padding: 4px 6px;
+            border-radius: 4px;
+            transition: 0.15s;
+            line-height: 1;
+        }
+
+        .delete-btn:hover {
+            background: rgba(255, 82, 82, 0.15);
+            transform: scale(1.15);
+        }
+
+        .empty {
+            text-align: center;
+            color: #666;
+            margin-top: 50px;
+            font-size: 15px;
+        }
+
+        .flash {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 18px;
+            font-size: 14px;
+        }
+
+        .flash.success {
+            background: #1b5e20;
+        }
+
+        .flash.error {
+            background: #b71c1c;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎬 Filmes</h1>
+
+    <a href="/upload" class="add-btn">+ Adicionar filme</a>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="flash {{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <form method="get">
+        <input class="search" type="text" name="q" value="{{ search }}" placeholder="Pesquisar filme..." autofocus>
+    </form>
+
+    {% if movies %}
+        {% for movie in movies %}
+            <div class="movie">
+                <a href="/play/{{ movie.path }}">{{ movie.name }}</a>
+
+                <div class="movie-actions">
+                    <span class="size">{{ movie.size }}</span>
+
+                    <form action="/delete/{{ movie.path }}" method="POST" style="display:inline;"
+                          onsubmit="return confirm('Tem certeza que deseja apagar este filme?');">
+                        <button type="submit" class="delete-btn" title="Apagar filme">🗑️</button>
+                    </form>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p class="empty">Nenhum filme encontrado.</p>
+    {% endif %}
+</body>
+</html>
