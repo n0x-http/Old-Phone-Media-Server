@@ -61,7 +61,7 @@ Conceda a permissão de armazenamento quando solicitado.
 ## 4. Clone o projeto
 
 ```bash
-git clone [https://github.com/n0x-http/Old-Phone-Media-Server.git]
+git clone https://github.com/n0x-http/Old-Phone-Media-Server.git
 cd old-phone-media-server
 ```
 
