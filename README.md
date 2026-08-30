@@ -214,38 +214,6 @@ termux-wake-unlock
 
 ---
 
-# ⚡ Dicas para aumentar a velocidade
-
-Rodando em um celular via Termux, alguns ajustes fazem bastante diferença na velocidade de upload e streaming:
-
-* **Ative o `termux-wake-lock`** antes de subir o servidor e **desative a otimização de bateria** do Termux nas configurações do Android (Config > Apps > Termux > Bateria > Sem restrições). O Doze mode é a causa mais comum de quedas de desempenho "aleatórias".
-* **Desative o modo debug** e rode com threads ao iniciar o Flask:
-
-  ```python
-  app.run(host="0.0.0.0", port=5000, debug=False, threaded=True)
-  ```
-
-* **Evite salvar os filmes em armazenamento compartilhado** (`~/storage/shared/...`). Essa camada usa FUSE e é mais lenta. Prefira salvar direto na home do Termux:
-
-  ```python
-  MOVIES_FOLDER = Path.home() / "movies"
-  ```
-
-* **Use um servidor WSGI mais leve que o dev server do Flask**, como o `waitress`:
-
-  ```bash
-  pip install waitress
-  ```
-
-  ```python
-  from waitress import serve
-  serve(app, host="0.0.0.0", port=5000, threads=4)
-  ```
-
-* **Prefira Wi-Fi 5GHz e mantenha o celular perto do roteador** — o chipset Wi-Fi de celulares costuma ter upload mais fraco que o de notebooks/roteadores, especialmente em 2.4GHz.
-
----
-
 # ⚠️ Observações
 
 * Atualmente, o projeto foi pensado para trabalhar com arquivos **`.mp4`**.
