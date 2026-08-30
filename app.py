@@ -4,7 +4,7 @@ from werkzeug.utils import secure_filename
 import os
 
 app = Flask(__name__)
-app.secret_key = "chave-secreta-bem-simples"
+app.secret_key = "n0xxx"
 
 MOVIES_FOLDER = Path.home() / "movies"
 MOVIES_FOLDER.mkdir(exist_ok=True)
