@@ -27,6 +27,7 @@ O projeto permite armazenar, pesquisar e assistir filmes através do navegador e
 
 * **Python**
 * **Flask**
+* **Waitress**
 * **HTML5**
 * **CSS3**
 * **JavaScript**
@@ -77,19 +78,22 @@ O arquivo `requirements.txt` contém:
 
 ```text
 Flask
+waitress
 ```
 
-Caso você não tenha o `requirements.txt`, instale o Flask diretamente:
+Caso você não tenha o `requirements.txt`, instale as dependências diretamente:
 
 ```bash
-python -m pip install flask
+python -m pip install flask waitress
 ```
 
-Você pode verificar se o Flask foi instalado corretamente com:
+Você pode verificar se foram instaladas corretamente com:
 
 ```bash
-python -m pip show flask
+python -m pip show flask waitress
 ```
+
+> O **Waitress** é o servidor WSGI usado para rodar a aplicação em produção — é mais leve e estável que o servidor de desenvolvimento padrão do Flask, especialmente rodando em hardware limitado como um celular.
 
 ## 6. Inicie o servidor
 
@@ -97,7 +101,7 @@ python -m pip show flask
 python app.py
 ```
 
-O servidor estará rodando na porta `5000`.
+O servidor estará rodando na porta `5000`, servido pelo Waitress.
 
 ---
 
@@ -230,5 +234,3 @@ termux-wake-unlock
 # 📄 Licença
 
 Este projeto está disponível sob a licença **MIT**.
-
----
